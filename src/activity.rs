@@ -8,27 +8,27 @@ use serde_repr::Serialize_repr;
 /// Note that all methods return `Self`, and can be chained
 /// for fluency
 #[derive(Serialize, Clone)]
-pub struct Activity<'a> {
+pub struct Activity {
     #[serde(skip_serializing_if = "Option::is_none")]
-    state: Option<&'a str>,
+    state: Option<String>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
-    details: Option<&'a str>,
+    details: Option<String>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     timestamps: Option<Timestamps>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
-    party: Option<Party<'a>>,
+    party: Option<Party>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
-    assets: Option<Assets<'a>>,
+    assets: Option<Assets>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
-    secrets: Option<Secrets<'a>>,
+    secrets: Option<Secrets>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
-    buttons: Option<Vec<Button<'a>>>,
+    buttons: Option<Vec<Button>>,
 
     #[serde(skip_serializing_if = "Option::is_none", rename = "type")]
     activity_type: Option<ActivityType>,
@@ -52,9 +52,9 @@ pub struct Timestamps {
 /// Note that all methods return `Self`, and can be chained
 /// for fluency
 #[derive(Serialize, Clone)]
-pub struct Party<'a> {
+pub struct Party {
     #[serde(skip_serializing_if = "Option::is_none")]
-    id: Option<&'a str>,
+    id: Option<String>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     size: Option<[i32; 2]>,
@@ -66,18 +66,18 @@ pub struct Party<'a> {
 /// Note that all methods return `Self`, and can be chained
 /// for fluency
 #[derive(Serialize, Clone)]
-pub struct Assets<'a> {
+pub struct Assets {
     #[serde(skip_serializing_if = "Option::is_none")]
-    large_image: Option<&'a str>,
+    large_image: Option<String>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
-    large_text: Option<&'a str>,
+    large_text: Option<String>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
-    small_image: Option<&'a str>,
+    small_image: Option<String>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
-    small_text: Option<&'a str>,
+    small_text: Option<String>,
 }
 
 /// A struct representing the secrets used by an
@@ -86,15 +86,15 @@ pub struct Assets<'a> {
 /// Note that all methods return `Self`, and can be chained
 /// for fluency
 #[derive(Serialize, Clone)]
-pub struct Secrets<'a> {
+pub struct Secrets {
     #[serde(skip_serializing_if = "Option::is_none")]
-    join: Option<&'a str>,
+    join: Option<String>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
-    spectate: Option<&'a str>,
+    spectate: Option<String>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
-    r#match: Option<&'a str>,
+    r#match: Option<String>,
 }
 
 /// A struct representing the buttons that are
@@ -102,9 +102,9 @@ pub struct Secrets<'a> {
 ///
 /// An activity may have a maximum of 2 buttons
 #[derive(Serialize, Clone)]
-pub struct Button<'a> {
-    label: &'a str,
-    url: &'a str,
+pub struct Button {
+    label: String,
+    url: String,
 }
 
 /// A struct to set the Activity Type of the `Activity`
@@ -121,7 +121,7 @@ pub enum ActivityType {
     Competing = 5,
 }
 
-impl<'a> Activity<'a> {
+impl Activity {
     /// Creates a new `Activity`
     pub fn new() -> Self {
         Activity {
@@ -137,14 +137,14 @@ impl<'a> Activity<'a> {
     }
 
     /// Sets the state of the activity
-    pub fn state(mut self, state: &'a str) -> Self {
-        self.state = Some(state);
+    pub fn state(mut self, state: impl ToString) -> Self {
+        self.state = Some(state.to_string());
         self
     }
 
     /// Sets the details of the activity
-    pub fn details(mut self, details: &'a str) -> Self {
-        self.details = Some(details);
+    pub fn details(mut self, details: impl ToString) -> Self {
+        self.details = Some(details.to_string());
         self
     }
 
@@ -155,19 +155,19 @@ impl<'a> Activity<'a> {
     }
 
     /// Add a `Party` to this activity
-    pub fn party(mut self, party: Party<'a>) -> Self {
+    pub fn party(mut self, party: Party) -> Self {
         self.party = Some(party);
         self
     }
 
     /// Add an `Assets` to this activity
-    pub fn assets(mut self, assets: Assets<'a>) -> Self {
+    pub fn assets(mut self, assets: Assets) -> Self {
         self.assets = Some(assets);
         self
     }
 
     /// Add a `Secrets` to this activity
-    pub fn secrets(mut self, secrets: Secrets<'a>) -> Self {
+    pub fn secrets(mut self, secrets: Secrets) -> Self {
         self.secrets = Some(secrets);
         self
     }
@@ -175,7 +175,7 @@ impl<'a> Activity<'a> {
     /// Add a `Vec` of `Button`s to this activity
     ///
     /// An activity may contain no more than 2 buttons
-    pub fn buttons(mut self, buttons: Vec<Button<'a>>) -> Self {
+    pub fn buttons(mut self, buttons: Vec<Button>) -> Self {
         // API call fails if the array is empty, so we skip serialization
         // entirely if this is the case
         if buttons.is_empty() {
@@ -193,7 +193,7 @@ impl<'a> Activity<'a> {
     }
 }
 
-impl<'a> Default for Activity<'a> {
+impl Default for Activity {
     fn default() -> Self {
         Self::new()
     }
@@ -227,7 +227,7 @@ impl Default for Timestamps {
     }
 }
 
-impl<'a> Party<'a> {
+impl Party {
     /// Creates a new `Party`
     pub fn new() -> Self {
         Party {
@@ -237,8 +237,8 @@ impl<'a> Party<'a> {
     }
 
     /// Sets the ID of the party
-    pub fn id(mut self, id: &'a str) -> Self {
-        self.id = Some(id);
+    pub fn id(mut self, id: impl ToString) -> Self {
+        self.id = Some(id.to_string());
         self
     }
 
@@ -256,13 +256,13 @@ impl<'a> Party<'a> {
     }
 }
 
-impl<'a> Default for Party<'a> {
+impl Default for Party {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl<'a> Assets<'a> {
+impl Assets {
     /// Creates a new `Assets`
     pub fn new() -> Self {
         Assets {
@@ -278,15 +278,15 @@ impl<'a> Assets<'a> {
     ///
     /// Alternatively, the URL of the resource to be used as
     /// the large image
-    pub fn large_image(mut self, large_image: &'a str) -> Self {
-        self.large_image = Some(large_image);
+    pub fn large_image(mut self, large_image: impl ToString) -> Self {
+        self.large_image = Some(large_image.to_string());
         self
     }
 
     /// Sets the text to be shown when hovering over the large
     /// image
-    pub fn large_text(mut self, large_text: &'a str) -> Self {
-        self.large_text = Some(large_text);
+    pub fn large_text(mut self, large_text: impl ToString) -> Self {
+        self.large_text = Some(large_text.to_string());
         self
     }
 
@@ -295,26 +295,26 @@ impl<'a> Assets<'a> {
     ///
     /// Alternatively, the URL of the resource to be used as
     /// the small image
-    pub fn small_image(mut self, small_image: &'a str) -> Self {
-        self.small_image = Some(small_image);
+    pub fn small_image(mut self, small_image: impl ToString) -> Self {
+        self.small_image = Some(small_image.to_string());
         self
     }
 
     /// Sets the text that is shown when hovering over the small
     /// image
-    pub fn small_text(mut self, small_text: &'a str) -> Self {
-        self.small_text = Some(small_text);
+    pub fn small_text(mut self, small_text: impl ToString) -> Self {
+        self.small_text = Some(small_text.to_string());
         self
     }
 }
 
-impl<'a> Default for Assets<'a> {
+impl Default for Assets {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl<'a> Secrets<'a> {
+impl Secrets {
     /// Creates a new `Secrets`
     pub fn new() -> Self {
         Secrets {
@@ -325,38 +325,38 @@ impl<'a> Secrets<'a> {
     }
 
     /// Sets the secret for joining a game party
-    pub fn join(mut self, join: &'a str) -> Self {
-        self.join = Some(join);
+    pub fn join(mut self, join: impl ToString) -> Self {
+        self.join = Some(join.to_string());
         self
     }
 
     /// Sets the secret for spectating a match
-    pub fn spectate(mut self, spectate: &'a str) -> Self {
-        self.spectate = Some(spectate);
+    pub fn spectate(mut self, spectate: impl ToString) -> Self {
+        self.spectate = Some(spectate.to_string());
         self
     }
 
     /// Sets the secret for a specific, instanced match
-    pub fn r#match(mut self, r#match: &'a str) -> Self {
-        self.r#match = Some(r#match);
+    pub fn r#match(mut self, r#match: impl ToString) -> Self {
+        self.r#match = Some(r#match.to_string());
         self
     }
 }
 
-impl<'a> Default for Secrets<'a> {
+impl Default for Secrets {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl<'a> Button<'a> {
+impl Button {
     /// Creates a new `Button` with the given label and
     /// URL
     ///
     /// The label must be 1-32 characters long
     ///
     /// The URL must be 1-512 characters long
-    pub fn new(label: &'a str, url: &'a str) -> Self {
-        Button { label, url }
+    pub fn new(label: impl ToString, url: impl ToString) -> Self {
+        Button { label: label.to_string(), url: url.to_string() }
     }
 }
